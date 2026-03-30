@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<!-- Ermöglicht den Vollbildmodus nach dem Speichern auf dem Home-Bildschirm -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Macht die Statusleiste (Uhrzeit/Akku) schwarz oder transparent -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Verhindert, dass der Gast die Seite versehentlich zoomt -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- Reload der Seite alle 14.400 sekunden (4 Stunden) -->
+    <meta http-equiv="refresh" content="14400">
+    <title>AirBnB Gaeste-Information</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #FF5A5F;
+            background: -webkit-linear-gradient(135deg, #FF5A5F 0%, #FF385C 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 984px;
+            margin: 0 auto;
+        }
+        
+        .welcome-screen {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .welcome-screen h1 {
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-screen p {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 40px;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: white;
+            color: #FF5A5F;
+            padding: 18px 48px;
+            font-size: 20px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        
+        .info-screen {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .info-screen.active {
+            display: block;
+        }
+        
+        .header {
+            background: #FF5A5F;
+            background: -webkit-linear-gradient(135deg, #FF5A5F 0%, #FF385C 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f7f7f7;
+            padding: 20px;
+            cursor: pointer;
+            display: block;
+        }
+        
+        .section-header h2 {
+            font-size: 22px;
+            color: #FF5A5F;
+        }
+        
+        .section-header .icon {
+            margin-right: 12px;
+            font-size: 24px;
+        }
+        
+        .section-header .arrow {
+            float: right;
+            font-size: 24px;
+            color: #666;
+        }
+        
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .section-content.active {
+            max-height: 5000px;
+        }
+        
+        .section-body {
+            padding: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .wifi-box {
+            background: #f0f8ff;
+            border: 2px solid #FF5A5F;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .wifi-row {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .wifi-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .wifi-value {
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            color: #FF5A5F;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn {
+            background: #FF5A5F;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .info-card {
+            background: #f7f7f7;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #FF5A5F;
+            margin: 15px 0;
+        }
+        
+        .info-card h3 {
+            color: #FF5A5F;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .info-card p {
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .rules-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .rules-list li {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f7f7f7;
+            border-radius: 8px;
+            border-left: 4px solid #FF5A5F;
+            font-size: 17px;
+        }
+        
+        .device-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f7f7f7;
+            border-radius: 8px;
+        }
+        
+        .device-section h3 {
+            color: #FF5A5F;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .device-section ol {
+            margin-left: 20px;
+        }
+        
+        .device-section li {
+            margin: 8px 0;
+            font-size: 17px;
+            line-height: 1.5;
+        }
+        
+        .restaurant-card {
+            background: #f7f7f7;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            border-left: 4px solid #FF5A5F;
+        }
+        
+        .restaurant-card h3 {
+            color: #FF5A5F;
+            font-size: 19px;
+            margin-bottom: 8px;
+        }
+        
+        .restaurant-card p {
+            font-size: 16px;
+            color: #666;
+            margin: 4px 0;
+        }
+        
+        .emergency-box {
+            background: #fff3f3;
+            border: 3px solid #FF5A5F;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .emergency-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #FF5A5F;
+            margin: 10px 0;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: #FF5A5F;
+            border: 2px solid #FF5A5F;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            margin-left: -150px;
+            width: 300px;
+            background: #333;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            opacity: 0;
+            z-index: 2000;
+            text-align: center;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="welcomeScreen" class="welcome-screen">
+            <h1>Willkommen!</h1>
+            <p>Herzlich Willkommen in Ihrer AirBnB-Unterkunft</p>
+            <button class="btn" onclick="showInfo()">Gaeste-Informationen anzeigen</button>
+        </div>
+
+        <button id="backBtn" class="back-btn" onclick="showWelcome()">Zurueck</button>
+
+        <div id="infoScreen" class="info-screen">
+            <div class="header">
+                <h1>Gaeste-Information</h1>
+                <p>Alle wichtigen Informationen fuer Ihren Aufenthalt</p>
+            </div>
+
+            <div class="content">
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <h2><span class="icon">&#128246;</span> WLAN <span class="arrow">&#9660;</span></h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <div class="wifi-box">
+                                <div class="wifi-row">
+                                    <span class="wifi-label">Netzwerk:</span>
+                                    <span class="wifi-value" id="wifiName">AirBnB_Gast_2024</span>
+                                    <button class="copy-btn" onclick="copyText('wifiName')">Kopieren</button>
+                                </div>
+                                <div class="wifi-row">
+                                    <span class="wifi-label">Passwort:</span>
+                                    <span class="wifi-value" id="wifiPassword">Willkommen123!</span>
+                                    <button class="copy-btn" onclick="copyText('wifiPassword')">Kopieren</button>
+                                </div>
+                            </div>
+                            <p><strong>Hinweis:</strong> Das WLAN ist im gesamten Apartment verfuegbar. Bei Problemen bitte Router neu starten.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <h2><span class="icon">&#128336;</span> Check-in / Check-out <span class="arrow">&#9660;</span></h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <div class="info-card">
+                                <h3>Check-in</h3>
+                                <p>Ab 15:00 Uhr</p>
+                            </div>
+                            <div class="info-card">
+                                <h3>Check-out</h3>
+                                <p>Bis 11:00 Uhr</p>
+                            </div>
+                            <p><strong>Schluesseluebergabe:</strong> Der Schluessel befindet sich im Schluesseltresor neben der Eingangstuer. Den Code haben Sie per Nachricht erhalten.</p>
+                            <p><strong>Bei Abreise:</strong> Bitte legen Sie den Schluessel wieder in den Tresor und verschliessen Sie diesen.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <h2><span class="icon">&#128203;</span> Hausregeln <span class="arrow">&#9660;</span></h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <ul class="rules-list">
+                                <li>Bitte keine Partys oder laute Musik nach 22:00 Uhr</li>
+                                <li>Rauchen ist nur auf dem Balkon gestattet</li>
+                                <li>Haustiere nach Absprache willkommen</li>
+                                <li>Maximale Gaestezahl: 4 Personen</li>
+                                <li>Bitte Muell trennen (Gelber Sack, Papier, Restmuell)</li>
+                                <li>Beim Verlassen der Wohnung bitte Fenster schliessen</li>
+                                <li>Heizung nicht ueber 22 Grad einstellen</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <h2><span class="icon">&#9881;</span> Geraete-Anleitungen <span class="arrow">&#9660;</span></h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <div class="device-section">
+                                <h3>Kaffeemaschine (Nespresso)</h3>
+                                <ol>
+                                    <li>Wassertank mit frischem Wasser fuellen</li>
+                                    <li>Kapsel in die Halterung einlegen</li>
+                                    <li>Hebel schliessen</li>
+                                    <li>Tasse unter den Auslauf stellen</li>
+                                    <li>Gewuenschte Taste druecken (klein/gross)</li>
+                                    <li>Nach Gebrauch: Kapsel entfernen und Auffangbehaelter leeren</li>
+                                </ol>
+                                <p><strong>Kapseln:</strong> Im Schrank ueber der Maschine</p>
+                            </div>
+
+                            <div class="device-section">
+                                <h3>Fernseher & Streaming</h3>
+                                <ol>
+                                    <li>TV einschalten mit roter Power-Taste auf Fernbedienung</li>
+                                    <li>Fuer normales TV: Source-Taste dann TV auswaehlen</li>
+                                    <li>Fuer Streaming: Source-Taste dann HDMI 2 (Fire TV Stick)</li>
+                                    <li>Netflix, Prime Video und Disney+ sind bereits eingerichtet</li>
+                                    <li>Lautstaerke mit +/- Tasten regeln</li>
+                                </ol>
+                                <p><strong>Hinweis:</strong> Fernbedienungen liegen auf dem TV-Board</p>
+                            </div>
+
+                            <div class="device-section">
+                                <h3>Heizung</h3>
+                                <ol>
+                                    <li>Drehen Sie am Thermostat (weisse Drehknoepfe an den Heizkoerpern)</li>
+                                    <li>Stufe 3 = ca. 20 Grad (empfohlen)</li>
+                                    <li>Stufe 4 = ca. 22 Grad</li>
+                                    <li>Bitte nicht ueber Stufe 4 drehen (Energieverschwendung)</li>
+                                    <li>Nachts auf Stufe 2-3 zurueckdrehen</li>
+                                </ol>
+                                <p><strong>Wichtig:</strong> Bitte Fenster schliessen, wenn geheizt wird</p>
+                            </div>
+
+                            <div class="device-section">
+                                <h3>Waschmaschine</h3>
+                                <ol>
+                                    <li>Waschmittel in Fach II (links)</li>
+                                    <li>Weichspueler in Fach mit Blumen-Symbol (rechts)</li>
+                                    <li>Programm waehlen: Baumwolle 40 Grad fuer normale Waesche</li>
+                                    <li>Start-Taste druecken (blinkt gruen)</li>
+                                    <li>Dauer: ca. 2 Stunden</li>
+                                    <li>Waeschestaender ist im Abstellraum</li>
+                                </ol>
+                                <p><strong>Waschmittel:</strong> Unter dem Waschbecken im Bad</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <h2><span class="icon">&#127860;</span> Restaurants & Tipps <span class="arrow">&#9660;</span></h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <h3 style="color: #FF5A5F; margin-bottom: 15px;">Restaurants in der Naehe</h3>
+                            
+                            <div class="restaurant-card">
+                                <h3>La Trattoria (5 min zu Fuss)</h3>
+                                <p>Italienische Kueche</p>
+                                <p>Hausgemachte Pasta und Pizza aus dem Steinofen</p>
+                                <p><strong>Reservierung empfohlen:</strong> +49 123 456789</p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <h3>Burger House (3 min zu Fuss)</h3>
+                                <p>Amerikanisch</p>
+                                <p>Leckere Burger und Pommes, auch vegetarisch</p>
+                                <p><strong>Oeffnungszeiten:</strong> 11:00 - 23:00 Uhr</p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <h3>Asia Garden (8 min zu Fuss)</h3>
+                                <p>Asiatisch</p>
+                                <p>Sushi, Thai-Curry und Pho-Suppen</p>
+                                <p><strong>Lieferservice verfuegbar</strong></p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <h3>Cafe Sonnenschein (2 min zu Fuss)</h3>
+                                <p>Cafe & Fruehstueck</p>
+                                <p>Perfekt fuer Fruehstueck und Kaffee</p>
+                                <p><strong>Oeffnungszeiten:</strong> 07:00 - 18:00 Uhr</p>
+                            </div>
+
+                            <h3 style="color: #FF5A5F; margin: 25px 0 15px;">Sehenswuerdigkeiten</h3>
+                            
+                            <div class="restaurant-card">
+                                <h3>Altstadt (15 min zu Fuss)</h3>
+                                <p>Historische Gebaeude, Marktplatz und gemuetliche Gassen</p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <h3>Stadtpark (10 min zu Fuss)</h3>
+                                <p>Grosser Park mit Spielplatz, See und Biergarten</p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <h3>Museum fuer Moderne Kunst (20 min zu Fuss)</h3>
+                                <p>Wechselnde Ausstellungen | Eintritt: 8 Euro</p>
+                            </div>
+
+                            <h3 style="color: #FF5A5F; margin: 25px 0 15px;">Einkaufen</h3>
+                            
+                            <div class="restaurant-card">
+                                <h3>REWE Supermarkt (5 min zu Fuss)</h3>
+                                <p>Oeffnungszeiten: Mo-Sa 07:00 - 22:00 Uhr</p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <h3>Baeckerei Mueller (3 min zu Fuss)</h3>
+                                <p>Frische Broetchen ab 06:00 Uhr | Auch sonntags geoeffnet!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header" onclick="toggleSection(this)">
+                        <h2><span class="icon">&#128680;</span> Notfallkontakte <span class="arrow">&#9660;</span></h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="section-body">
+                            <div class="emergency-box">
+                                <h3 style="color: #FF5A5F;">Gastgeber</h3>
+                                <div class="emergency-number">+49 170 123 4567</div>
+                                <p style="color: #666;">Bei Fragen oder Problemen jederzeit erreichbar</p>
+                            </div>
+
+                            <div class="emergency-box">
+                                <h3 style="color: #FF5A5F;">Notdienste</h3>
+                                <div class="emergency-number">Polizei: 110</div>
+                                <div class="emergency-number">Feuerwehr/Rettung: 112</div>
+                                <div class="emergency-number">Aerztlicher Notdienst: 116 117</div>
+                            </div>
+
+                            <div class="info-card">
+                                <h3>Hausmeister</h3>
+                                <p>Herr Schmidt: +49 171 234 5678</p>
+                                <p>Bei technischen Problemen (Heizung, Wasser, etc.)</p>
+                            </div>
+
+                            <div class="info-card">
+                                <h3>Taxi</h3>
+                                <p>Taxi-Zentrale: +49 123 456 789</p>
+                                <p>Oder per App: Uber, Bolt, FreeNow</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function showInfo() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('infoScreen').classList.add('active');
+            document.getElementById('backBtn').style.display = 'block';
+        }
+        
+        function showWelcome() {
+            document.getElementById('welcomeScreen').style.display = 'block';
+            document.getElementById('infoScreen').classList.remove('active');
+            document.getElementById('backBtn').style.display = 'none';
+            
+            var headers = document.querySelectorAll('.section-header');
+            for (var i = 0; i < headers.length; i++) {
+                headers[i].classList.remove('active');
+                var content = headers[i].nextElementSibling;
+                if (content) {
+                    content.classList.remove('active');
+                }
+            }
+        }
+        
+        function toggleSection(header) {
+            var content = header.nextElementSibling;
+            var isActive = header.classList.contains('active');
+            
+            if (isActive) {
+                header.classList.remove('active');
+                content.classList.remove('active');
+            } else {
+                header.classList.add('active');
+                content.classList.add('active');
+            }
+        }
+        
+        function copyText(elementId) {
+            var element = document.getElementById(elementId);
+            var text = element.textContent || element.innerText;
+            
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.top = '0';
+            textarea.style.left = '0';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            
+            try {
+                var success = document.execCommand('copy');
+                if (success) {
+                    showToast('In Zwischenablage kopiert: ' + text);
+                } else {
+                    showToast('Bitte manuell kopieren: ' + text);
+                }
+            } catch (err) {
+                showToast('Bitte manuell notieren: ' + text);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        function showToast(message) {
+            var toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
